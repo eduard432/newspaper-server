@@ -7,7 +7,7 @@ const main = async () => {
 	dotenv.config()
 	const appServer = new App()
 
-	const port = parseInt(process.env.port || '3000')
+	const port = parseInt(process.env.PORT || '3000')
 	const expressApp = await appServer.listen(port, () => console.log('Server running on port: ' + port))
 	await appServer.startCache()
 	const s3Client = appServer.getS3Client()
