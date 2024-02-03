@@ -110,7 +110,7 @@ export const scrappImage = async (
 	altDate = new Date()
 ): Promise<string | null> => {
 	try {
-		if (newsPaper === 'excelsior') throw new Error('newsPaper excelsior not supported')
+		// if (newsPaper === 'excelsior') throw new Error('newsPaper excelsior not supported')
 		const fileName = `${newsPaper} - ${getDate(altDate, true)}.webp`
 		const exists = await existsImage(client, fileName)
 		if (exists) return fileName

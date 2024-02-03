@@ -24,9 +24,9 @@ const newsPapers: NewsPapersMap = {
 	el_sol_de_mexico: {
 		urlCode: '34ns',
 	},
-	excelsior: {
-		urlCode: '',
-	},
+	// excelsior: {
+	// 	urlCode: '',
+	// },
 }
 
 export default newsPapers
