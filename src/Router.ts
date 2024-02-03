@@ -5,6 +5,7 @@ import { RequestHandler } from 'express'
 import { S3Client } from '@aws-sdk/client-s3'
 import fs from 'fs/promises'
 import newsPapers from './newsPapersConsts'
+import { rmRecursive } from './helpers'
 
 export const handlerWithS3Client = (client: S3Client) => {
 	const handleGetImage: RequestHandler<{ fileName: string }> = async (req, res) => {
@@ -35,7 +36,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 					return res.type('image/webp').send(imageBuffer)
 				}
 			} else {
-				return res.type('image/webp').send(localFile)
+				return res.type('image/webp').send(localFile).status(304)
 			}
 		} catch (error) {
 			if (error instanceof Error) {
@@ -75,15 +76,19 @@ export const handlerWithS3Client = (client: S3Client) => {
 	) => {
 		const { newsPaper, date: dateString } = req.query
 		if (!newsPaper || !dateString) {
-			return res.json({
-				ok: false,
-				error: 'Missing data...',
-			}).status(400)
+			return res
+				.json({
+					ok: false,
+					error: 'Missing data...',
+				})
+				.status(400)
 		} else if (!Object.keys(newsPapers).includes(newsPaper)) {
-			return res.json({
-				ok: false,
-				error: 'Invalid newspaper...',
-			}).status(403)
+			return res
+				.json({
+					ok: false,
+					error: 'Invalid newspaper...',
+				})
+				.status(403)
 		}
 		const fileName = await scrappImage(client, newsPaper, new Date(dateString.replace('-', '/')))
 		if (!fileName)
@@ -106,8 +111,26 @@ export const handlerWithS3Client = (client: S3Client) => {
 export const handleListNewsPaper: RequestHandler = (req, res) => {
 	return res.json({
 		ok: true,
-		newsPapers: Object.keys(newsPapers)
+		newsPapers: Object.keys(newsPapers),
 	})
+}
+
+export const handleClearCache: RequestHandler = async (req, res) => {
+	try {
+		const result = await rmRecursive('./cache')
+		return res.json({
+			ok: result,
+			message: result ? 'Cache cleaned' : 'Cache is alredy empty',
+		})
+	} catch (error) {
+		if (error instanceof Error) console.log(error.message)
+		return res
+			.json({
+				ok: false,
+				message: 'Error cleaning cache',
+			})
+			.status(500)
+	}
 }
 
 export const handleHealthCheck: RequestHandler = (req, res) => {

@@ -1,4 +1,4 @@
-import { handleHealthCheck, handleListNewsPaper, handlerWithS3Client } from './Router'
+import { handleClearCache, handleHealthCheck, handleListNewsPaper, handlerWithS3Client } from './Router'
 import App from './App'
 import dotenv from 'dotenv'
 import express from 'express'
@@ -20,6 +20,7 @@ const main = async () => {
 	router.get('/api/cover', handleScrappImage)
 	router.get('/api/covers/:date', handleListImages)
 	router.get('/api/images/:fileName', handleGetImage)
+	router.post('/api/cache', handleClearCache)
 	expressApp.use('/health', handleHealthCheck)
 
 	expressApp.use(router)
