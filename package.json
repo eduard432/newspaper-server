@@ -5,9 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "start": "node dist/index.js",
-    "build": "tsc -p . & cp web dist",
-    "build:dev": "tsc -p .",
+    "start": "node dist/index.js & cp ./web ./dist",
+    "build": "tsc -p .",
     "test": "vitest"
   },
   "keywords": [],
