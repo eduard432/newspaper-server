@@ -16,14 +16,14 @@ const main = async () => {
 
 	const { handleGetImage, handleListImages, handleScrappImage } = handlerWithS3Client(s3Client)
 
-	router.get('/api/newspapers', handleListNewsPaper)
-	router.get('/api/cover', handleScrappImage)
-	router.get('/api/covers/:date', handleListImages)
-	router.get('/api/images/:fileName', handleGetImage)
-	router.post('/api/cache', handleClearCache)
+	router.get('/newspapers', handleListNewsPaper)
+	router.get('/cover', handleScrappImage)
+	router.get('/covers/:date', handleListImages)
+	router.get('/images/:fileName', handleGetImage)
+	router.post('/cache', handleClearCache)
 	expressApp.use('/health', handleHealthCheck)
 
-	expressApp.use(router)
+	expressApp.use('/api', router)
 
 	expressApp.use(appServer.notFoundHandler, appServer.errorHandler)
 }
