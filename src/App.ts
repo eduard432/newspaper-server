@@ -4,6 +4,10 @@ import cors from 'cors'
 import path from 'path'
 import fs from 'fs/promises'
 import { S3Client } from '@aws-sdk/client-s3'
+import favicon from 'serve-favicon'
+
+const NODE_ENV = process.env.NODE_ENV
+
 
 export default class App {
 	private expressApp: Express
@@ -16,6 +20,12 @@ export default class App {
 		this.expressApp.disable('x-powered-by')
 		this.expressApp.listen(port, callback)
 		this.expressApp.use(express.json(), cors(), morgan('dev'))
+
+		const pathDir = path.join(NODE_ENV !== 'production' ? process.cwd() : __dirname, 'web')
+		console.log({pathDir})
+		this.expressApp.use(express.static(pathDir))
+		this.expressApp.use(favicon(path.join(pathDir, 'favicon.ico')))
+		this.expressApp.get('/', (req, res) => res.sendFile(path.join(pathDir, 'index.html')))
 
 		return this.expressApp
 	}
