@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" sizes="16x16" href="/favicon.ico">
+    <title>Mercado Libre API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="w-screen bg-gray-800 text-gray-50 font-mono" >
+    <main class="w-10/12 mx-auto p-20 flex flex-col items-center" >
+        <h1 class="text-7xl font-semibold text-center" >News Paper API</h1>
+        <p class="text-2xl text-center mt-8 px-12" >API para obtener las portadas de los periódicos más importantes en México</p>
+        <span class="text-2xl text-center mt-16" >Rutas disponibles:</span>
+        <ul class="text-xl mt-4">
+            <li>- /api/cover?newsPaper={NEWSPAPER}&date={XXXX-XX-XX}</li>
+            <li>- /api/covers/{XXXX-XX-XX}</li>
+            <li>- /api/images/{FILENAME}</li>
+            <li class="text-center"><br>({XXXX-XX-XX} => {YEAR-MONTH-DAY})</li>
+        </ul>
+        <a class="bg-gray-900 px-12 py-1 rounded-md mt-24 text-2xl hover:bg-gray-700 transition-colors duration-300 ease-out" href="/">Docs en Postman</a>
+    </main>
+
+</body>
+</html>

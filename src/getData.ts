@@ -14,7 +14,7 @@ export const listImages = async (client: S3Client, date: string): Promise<string
 		} else return []
 	} catch (error) {
 		if (error instanceof Error) console.log(error.message)
-        console.log(error)
+		console.log(error)
 		return []
 	}
 }

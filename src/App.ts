@@ -1,14 +1,17 @@
-import express, { Handler, type Express, ErrorRequestHandler } from 'express'
-import morgan from 'morgan'
-import cors from 'cors'
-import path from 'path'
-import fs from 'fs/promises'
 import { S3Client } from '@aws-sdk/client-s3'
+import cors from 'cors'
+import express, { Handler, type Express, ErrorRequestHandler } from 'express'
+import favicon from 'serve-favicon'
+import fs from 'fs/promises'
+import morgan from 'morgan'
+import path from 'path'
+
+const NODE_ENV = process.env.NODE_ENV
 
 export default class App {
 	private expressApp: Express
 
-	constructor () {
+	constructor() {
 		this.expressApp = express()
 	}
 
@@ -17,11 +20,16 @@ export default class App {
 		this.expressApp.listen(port, callback)
 		this.expressApp.use(express.json(), cors(), morgan('dev'))
 
+		const pathDir = path.join(NODE_ENV !== 'production' ? process.cwd() : __dirname, 'web')
+		this.expressApp.use(express.static(pathDir))
+		this.expressApp.use(favicon(path.join(pathDir, 'favicon.ico')))
+		this.expressApp.get('/', (req, res) => res.sendFile(path.join(pathDir, 'index.html')))
+
 		return this.expressApp
 	}
-    
-    public getS3Client () {
-        const bucketName = process.env.AWS_BUCKET_NAME || ''
+
+	public getS3Client() {
+		const bucketName = process.env.AWS_BUCKET_NAME || ''
 		const region = process.env.AWS_BUCKET_REGION || ''
 		const accessKeyId = process.env.AWS_S3_ACCESS_KEY || ''
 		const secretAccessKey = process.env.AWS_S3_SECRET_KEY || ''
@@ -34,11 +42,11 @@ export default class App {
 				secretAccessKey,
 			},
 		})
-    }
+	}
 
-	public async startCache () {
+	public async startCache() {
 		const dir = await fs.readdir('./cache').catch(() => null)
-		if(!dir) fs.mkdir('./cache')
+		if (!dir) fs.mkdir('./cache')
 	}
 
 	public notFoundHandler: Handler = (req, res, next) => {

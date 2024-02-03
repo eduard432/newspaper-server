@@ -1,7 +1,7 @@
+import { handleHealthCheck, handleListNewsPaper, handlerWithS3Client } from './Router'
 import App from './App'
 import dotenv from 'dotenv'
 import express from 'express'
-import { handlerWithS3Client } from './Router'
 
 const main = async () => {
 	dotenv.config()
@@ -16,9 +16,11 @@ const main = async () => {
 
 	const { handleGetImage, handleListImages, handleScrappImage } = handlerWithS3Client(s3Client)
 
-	router.get('/images/:fileName', handleGetImage)
-	router.get('/images/list/:date', handleListImages)
-	router.get('/api/scrapper', handleScrappImage)
+	router.get('/api/newspapers', handleListNewsPaper)
+	router.get('/api/cover', handleScrappImage)
+	router.get('/api/covers/:date', handleListImages)
+	router.get('/api/images/:fileName', handleGetImage)
+	expressApp.use('/health', handleHealthCheck)
 
 	expressApp.use(router)
 

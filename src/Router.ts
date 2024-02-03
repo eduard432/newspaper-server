@@ -1,9 +1,9 @@
-import { S3Client } from '@aws-sdk/client-s3'
-import { RequestHandler } from 'express'
-import fs from 'fs/promises'
-import { downLoadImage, getDate, scrappImage } from './scrappImage'
+import { downLoadImage, scrappImage } from './scrappImage'
 import { listImages } from './getData'
 import { NewsPapersList } from './types'
+import { RequestHandler } from 'express'
+import { S3Client } from '@aws-sdk/client-s3'
+import fs from 'fs/promises'
 import newsPapers from './newsPapersConsts'
 
 export const handlerWithS3Client = (client: S3Client) => {
@@ -16,7 +16,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 						ok: false,
 						error: 'Filename missing',
 					})
-					.status(300)
+					.status(400)
 
 			const localFile = await fs.readFile(`./cache/${fileName}`).catch(() => null)
 
@@ -54,7 +54,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 						ok: false,
 						error: 'Filename missing',
 					})
-					.status(300)
+					.status(400)
 
 			const keys = await listImages(client, date)
 			return res.json({
@@ -78,12 +78,12 @@ export const handlerWithS3Client = (client: S3Client) => {
 			return res.json({
 				ok: false,
 				error: 'Missing data...',
-			})
+			}).status(400)
 		} else if (!Object.keys(newsPapers).includes(newsPaper)) {
 			return res.json({
 				ok: false,
 				error: 'Invalid newspaper...',
-			})
+			}).status(403)
 		}
 		const fileName = await scrappImage(client, newsPaper, new Date(dateString.replace('-', '/')))
 		if (!fileName)
@@ -101,4 +101,15 @@ export const handlerWithS3Client = (client: S3Client) => {
 	}
 
 	return { handleGetImage, handleListImages, handleScrappImage }
+}
+
+export const handleListNewsPaper: RequestHandler = (req, res) => {
+	return res.json({
+		ok: true,
+		newsPapers: Object.keys(newsPapers)
+	})
+}
+
+export const handleHealthCheck: RequestHandler = (req, res) => {
+	return res.status(200).json({ ok: true, status: 'Healthy' })
 }
