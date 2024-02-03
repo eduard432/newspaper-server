@@ -20,7 +20,7 @@ export default class App {
 		this.expressApp.listen(port, callback)
 		this.expressApp.use(express.json(), cors(), morgan('dev'))
 
-		const pathDir = path.join(NODE_ENV !== 'production' ? process.cwd() : __dirname, 'web')
+		const pathDir = path.join(process.cwd(), '/web')
 		this.expressApp.use(express.static(pathDir))
 		this.expressApp.use(favicon(path.join(pathDir, 'favicon.ico')))
 		this.expressApp.get('/', (req, res) => res.sendFile(path.join(pathDir, 'index.html')))
