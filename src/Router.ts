@@ -16,7 +16,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 						ok: false,
 						error: 'Filename missing',
 					})
-					.status(300)
+					.status(400)
 
 			const localFile = await fs.readFile(`./cache/${fileName}`).catch(() => null)
 
@@ -54,7 +54,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 						ok: false,
 						error: 'Filename missing',
 					})
-					.status(300)
+					.status(400)
 
 			const keys = await listImages(client, date)
 			return res.json({
@@ -78,12 +78,12 @@ export const handlerWithS3Client = (client: S3Client) => {
 			return res.json({
 				ok: false,
 				error: 'Missing data...',
-			})
+			}).status(400)
 		} else if (!Object.keys(newsPapers).includes(newsPaper)) {
 			return res.json({
 				ok: false,
 				error: 'Invalid newspaper...',
-			})
+			}).status(403)
 		}
 		const fileName = await scrappImage(client, newsPaper, new Date(dateString.replace('-', '/')))
 		if (!fileName)
