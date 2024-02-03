@@ -1,7 +1,7 @@
+import { handleHealthCheck, handlerWithS3Client } from './Router'
 import App from './App'
 import dotenv from 'dotenv'
 import express from 'express'
-import { handleHealthCheck, handlerWithS3Client } from './Router'
 
 const main = async () => {
 	dotenv.config()

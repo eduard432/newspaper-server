@@ -1,7 +1,7 @@
-import sharp from 'sharp'
-import newsPapers from './newsPapersConsts'
-import { NewsPapersList } from './types'
 import { GetObjectCommand, PutObjectCommand, PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3'
+import { NewsPapersList } from './types'
+import newsPapers from './newsPapersConsts'
+import sharp from 'sharp'
 
 export const getDate = (altDate: Date = new Date(), isFilePath = false) => {
 	let day: number | string = altDate.getDate()

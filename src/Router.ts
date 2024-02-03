@@ -1,9 +1,9 @@
-import { S3Client } from '@aws-sdk/client-s3'
-import { RequestHandler } from 'express'
-import fs from 'fs/promises'
-import { downLoadImage, getDate, scrappImage } from './scrappImage'
+import { downLoadImage, scrappImage } from './scrappImage'
 import { listImages } from './getData'
 import { NewsPapersList } from './types'
+import { RequestHandler } from 'express'
+import { S3Client } from '@aws-sdk/client-s3'
+import fs from 'fs/promises'
 import newsPapers from './newsPapersConsts'
 
 export const handlerWithS3Client = (client: S3Client) => {

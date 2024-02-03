@@ -1,4 +1,4 @@
-import { NewsPapersMap } from "./types"
+import { NewsPapersMap } from './types'
 
 const newsPapers: NewsPapersMap = {
 	milenio: {
