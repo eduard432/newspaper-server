@@ -102,3 +102,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 
 	return { handleGetImage, handleListImages, handleScrappImage }
 }
+
+export const handleHealthCheck: RequestHandler = (req, res) => {
+	return res.status(200).json({ ok: true, status: 'Healthy' })
+}
