@@ -1,11 +1,11 @@
-import { downLoadImage, scrappImage } from './scrappImage'
+import { downLoadImage, getDate, scrappImage } from './scrappImage'
 import { listImages } from './getData'
 import { NewsPapersList } from './types'
 import { RequestHandler } from 'express'
 import { S3Client } from '@aws-sdk/client-s3'
 import fs from 'fs/promises'
 import newsPapers from './newsPapersConsts'
-import { rmRecursive } from './helpers'
+import { getLastValidDate, rmRecursive } from './helpers'
 
 export const handlerWithS3Client = (client: S3Client) => {
 	const handleGetImage: RequestHandler<{ fileName: string }> = async (req, res) => {
@@ -46,9 +46,9 @@ export const handlerWithS3Client = (client: S3Client) => {
 		}
 	}
 
-	const handleListImages: RequestHandler<{ date: string }> = async (req, res) => {
+	const handleListImages: RequestHandler<{ date: string | 'latest' }> = async (req, res) => {
 		try {
-			const { date } = req.params
+			let { date } = req.params
 			if (!date)
 				return res
 					.json({
@@ -57,10 +57,17 @@ export const handlerWithS3Client = (client: S3Client) => {
 					})
 					.status(400)
 
+			if(date === 'latest'){
+				date = getDate(getLastValidDate(), true)
+			}
+
 			const keys = await listImages(client, date)
 			return res.json({
 				ok: true,
-				data: keys,
+				data: {
+					queryDate: date,
+					images: keys,
+				},
 			})
 		} catch (error) {
 			if (error instanceof Error) {

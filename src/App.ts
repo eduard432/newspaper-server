@@ -50,7 +50,7 @@ export default class App {
 	}
 
 	public notFoundHandler: Handler = (req, res, next) => {
-		res.status(404).send({ error: 404, message: 'Rout not found' })
+		res.status(404).send({ error: 404, message: 'Route not found' })
 	}
 
 	public errorHandler: ErrorRequestHandler = (err, req, res, next) => {
