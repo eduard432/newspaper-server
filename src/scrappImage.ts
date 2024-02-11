@@ -3,7 +3,15 @@ import { NewsPapersList } from './types'
 import newsPapers from './newsPapersConsts'
 import sharp from 'sharp'
 import pdfConverter from 'pdf-img-convert'
-import fs from 'fs/promises'
+
+const getMonthString = (date = new Date()): string => {
+	let month: number | string = date.getMonth() + 1
+	const dayNumber = new Number(month).valueOf()
+	if (dayNumber < 10) {
+		month = '0' + month
+	}
+	return `${month}`
+}
 
 export const getDate = (altDate: Date = new Date(), isFilePath = false, isExcelsior = false) => {
 	let day: number | string = altDate.getDate()
@@ -53,9 +61,20 @@ export const getImage = async (newsPaper: NewsPapersList, date: Date = new Date(
 	}
 }
 
-export const getImageExcelsior = async (newsPaper: 'excelsior', date = new Date()): Promise<Buffer | undefined> => {
+export const getImageExcelsior = async (date = new Date()): Promise<Buffer | undefined> => {
 	const dateString = getDate(date, true, true)
 	const url = `https://cdn2.excelsior.com.mx/Periodico/flip-nacional/${dateString}/portada.pdf`
+	const pdfArray = await pdfConverter.convert(url, { scale: 2, page_numbers: [1] })
+	const imageBufferPng = Buffer.from(pdfArray[0])
+	const imageBuffer = await sharp(imageBufferPng).webp().toBuffer()
+	return imageBuffer
+}
+
+export const getImageElPais = async (date = new Date()): Promise<Buffer | undefined> => {
+	const dateString = getDate(date, false)
+	const url = `https://srv00.epimg.net/pdf/elpais/1aPagina/${date.getFullYear()}/${getMonthString(
+		date
+	)}/ep-${dateString}.pdf`
 	const pdfArray = await pdfConverter.convert(url, { scale: 2, page_numbers: [1] })
 	const imageBufferPng = Buffer.from(pdfArray[0])
 	const imageBuffer = await sharp(imageBufferPng).webp().toBuffer()
@@ -127,7 +146,9 @@ export const scrappImage = async (
 		if (exists) return fileName
 		let imageBuffer: Buffer | undefined
 		if (newsPaper === 'excelsior') {
-			imageBuffer = await getImageExcelsior(newsPaper, altDate)
+			imageBuffer = await getImageExcelsior(altDate)
+		} else if(newsPaper === 'el_pais') {
+			imageBuffer = await getImageElPais(altDate)
 		} else {
 			imageBuffer = await getImage(newsPaper, altDate)
 		}

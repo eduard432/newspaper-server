@@ -27,7 +27,40 @@ const newsPapers: NewsPapersMap = {
 	excelsior: {
 		urlCode: '',
 	},
+	diario_de_yucatan: {
+		urlCode: 'e747',
+	},
+	la_razon: {
+		urlCode: '9acm',
+	},
+	el_heraldo: {
+		urlCode: '24b6',
+	},
+	vanguardia: {
+		urlCode: '2102',
+		maxWidth: 1368,
+	},
+	el_informador: {
+		urlCode: 'eabn',
+		maxWidth: 1368,
+	},
+	wsj: {
+		urlCode: '9gva',
+	},
+	the_washington_post: {
+		urlCode: '1047',
+		maxWidth: 1729,
+	},
 
+	the_guardian: {
+		urlCode: '1545',
+	},
+	abc: {
+		urlCode: '2019',
+	},
+	el_pais: {
+		urlCode: '',
+	},
 }
 
 export default newsPapers
