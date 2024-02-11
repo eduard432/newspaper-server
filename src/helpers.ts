@@ -8,7 +8,7 @@ export const rmRecursive = async (dirPath: string): Promise<boolean> => {
 	if (dir.length === 0 || !dir) return false
 
 	for (let i = 0; i < dir.length; i++) {
-        const fileName = dir[i]
+		const fileName = dir[i]
 		if (!fileName.includes('.')) continue
 		await fs.rm(`${dirPath}/${fileName}`)
 	}
@@ -24,3 +24,5 @@ export const getLastValidDate = (date = new Date()): Date => {
 
 	return date
 }
+
+export const isValidDate = (date: Date): boolean => new Date().getTime() - date.getTime() > 0

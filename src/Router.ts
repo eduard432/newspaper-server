@@ -5,7 +5,7 @@ import { RequestHandler } from 'express'
 import { S3Client } from '@aws-sdk/client-s3'
 import fs from 'fs/promises'
 import newsPapers from './newsPapersConsts'
-import { getLastValidDate, rmRecursive } from './helpers'
+import { getLastValidDate, isValidDate, rmRecursive } from './helpers'
 
 export const handlerWithS3Client = (client: S3Client) => {
 	const handleGetImage: RequestHandler<{ fileName: string }> = async (req, res) => {
@@ -61,6 +61,15 @@ export const handlerWithS3Client = (client: S3Client) => {
 				date = getDate(getLastValidDate(), true)
 			}
 
+			if (!isValidDate(new Date(date.replace('-', '/')))) {
+				return res
+					.json({
+						ok: false,
+						error: 'Invalid Date',
+					})
+					.status(400)
+			}
+
 			const keys = await listImages(client, date)
 			return res.json({
 				ok: true,
@@ -97,6 +106,15 @@ export const handlerWithS3Client = (client: S3Client) => {
 				})
 				.status(403)
 		}
+
+		if (!isValidDate(new Date(dateString.replace('-', '/')))) {
+			return res
+				.json({
+					ok: false,
+					error: 'Invalid Date',
+				})
+				.status(400)
+		}
 		const fileName = await scrappImage(client, newsPaper, new Date(dateString.replace('-', '/')))
 		if (!fileName)
 			return res
@@ -123,13 +141,24 @@ export const handlerWithS3Client = (client: S3Client) => {
 				.status(400)
 		}
 
+		if (!isValidDate(new Date(dateString.replace('-', '/')))) {
+			return res
+				.json({
+					ok: false,
+					error: 'Invalid Date',
+				})
+				.status(400)
+		}
+
 		const newsPapersKeys = Object.keys(newsPapers) as NewsPapersList[]
 		const scrappPromises = newsPapersKeys.map(
 			async (newsPaper) => await scrappImage(client, newsPaper, new Date(dateString.replace('-', '/')))
 		)
 
 		const fileNames = await Promise.allSettled(scrappPromises)
-		const urls = fileNames.map((result) => `${req.get('host')}/api/images/${result.status === 'fulfilled' && result.value}`)
+		const urls = fileNames.map(
+			(result) => `${req.get('host')}/api/images/${result.status === 'fulfilled' && result.value}`
+		)
 
 		return res.json({
 			ok: true,
