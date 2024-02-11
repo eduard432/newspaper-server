@@ -2,8 +2,10 @@ import { GetObjectCommand, PutObjectCommand, PutObjectCommandInput, S3Client } f
 import { NewsPapersList } from './types'
 import newsPapers from './newsPapersConsts'
 import sharp from 'sharp'
+import pdfConverter from 'pdf-img-convert'
+import fs from 'fs/promises'
 
-export const getDate = (altDate: Date = new Date(), isFilePath = false) => {
+export const getDate = (altDate: Date = new Date(), isFilePath = false, isExcelsior = false) => {
 	let day: number | string = altDate.getDate()
 	let month: number | string = altDate.getMonth() + 1
 	let year = altDate.getFullYear()
@@ -18,7 +20,7 @@ export const getDate = (altDate: Date = new Date(), isFilePath = false) => {
 		month = '0' + month
 	}
 
-	const date = [year, month, day].join(!isFilePath ? '' : '-')
+	const date = (!isExcelsior ? [year, month, day] : [day, month, year]).join(!isFilePath ? '' : '-')
 	return date
 }
 
@@ -49,6 +51,15 @@ export const getImage = async (newsPaper: NewsPapersList, date: Date = new Date(
 	} catch (error) {
 		if (error instanceof Error) console.log({ newsPaper, error: error.message })
 	}
+}
+
+export const getImageExcelsior = async (newsPaper: 'excelsior', date = new Date()): Promise<Buffer | undefined> => {
+	const dateString = getDate(date, true, true)
+	const url = `https://cdn2.excelsior.com.mx/Periodico/flip-nacional/${dateString}/portada.pdf`
+	const pdfArray = await pdfConverter.convert(url, { scale: 2, page_numbers: [1] })
+	const imageBufferPng = Buffer.from(pdfArray[0])
+	const imageBuffer = await sharp(imageBufferPng).webp().toBuffer()
+	return imageBuffer
 }
 
 export const loadImage = async (client: S3Client, fileName: string, file: Buffer): Promise<void> => {
@@ -114,7 +125,12 @@ export const scrappImage = async (
 		const fileName = `${newsPaper} - ${getDate(altDate, true)}.webp`
 		const exists = await existsImage(client, fileName)
 		if (exists) return fileName
-		const imageBuffer = await getImage(newsPaper, altDate)
+		let imageBuffer: Buffer | undefined
+		if (newsPaper === 'excelsior') {
+			imageBuffer = await getImageExcelsior(newsPaper, altDate)
+		} else {
+			imageBuffer = await getImage(newsPaper, altDate)
+		}
 		if (imageBuffer) await loadImage(client, fileName, imageBuffer)
 		return fileName
 	} catch (error) {

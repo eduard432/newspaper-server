@@ -108,7 +108,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 		else
 			return res.json({
 				ok: true,
-				url: `http://${req.get('host')}/images/${fileName}`,
+				url: `${req.get('host')}/api/images/${fileName}`,
 			})
 	}
 

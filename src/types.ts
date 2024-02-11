@@ -6,7 +6,7 @@ export type NewsPapersList =
 	| 'el_financiero'
 	| 'el_economista'
 	| 'el_sol_de_mexico'
-	// | 'excelsior'
+	| 'excelsior'
 
 export type NewsPapersMap = { [NEWSPAPER in NewsPapersList]: NewsPaperData }
 
