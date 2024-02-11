@@ -14,10 +14,11 @@ const main = async () => {
 
 	const router = express.Router()
 
-	const { handleGetImage, handleListImages, handleScrappImage } = handlerWithS3Client(s3Client)
+	const { handleGetImage, handleListImages, handleScrappImage, handleScrappAllImages } = handlerWithS3Client(s3Client)
 
 	router.get('/newspapers', handleListNewsPaper)
 	router.get('/cover', handleScrappImage)
+	router.get('/all-covers', handleScrappAllImages)
 	router.get('/covers/:date', handleListImages)
 	router.get('/images/:fileName', handleGetImage)
 	router.post('/cache', handleClearCache)

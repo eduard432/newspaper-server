@@ -57,7 +57,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 					})
 					.status(400)
 
-			if(date === 'latest'){
+			if (date === 'latest') {
 				date = getDate(getLastValidDate(), true)
 			}
 
@@ -112,7 +112,32 @@ export const handlerWithS3Client = (client: S3Client) => {
 			})
 	}
 
-	return { handleGetImage, handleListImages, handleScrappImage }
+	const handleScrappAllImages: RequestHandler<{}, {}, {}, { date: string }> = async (req, res) => {
+		const { date: dateString } = req.query
+		if (!dateString) {
+			return res
+				.json({
+					ok: false,
+					error: 'Missing data...',
+				})
+				.status(400)
+		}
+
+		const newsPapersKeys = Object.keys(newsPapers) as NewsPapersList[]
+		const scrappPromises = newsPapersKeys.map(
+			async (newsPaper) => await scrappImage(client, newsPaper, new Date(dateString.replace('-', '/')))
+		)
+
+		const fileNames = await Promise.allSettled(scrappPromises)
+		const urls = fileNames.map((result) => `${req.get('host')}/api/images/${result.status === 'fulfilled' && result.value}`)
+
+		return res.json({
+			ok: true,
+			urls,
+		})
+	}
+
+	return { handleGetImage, handleListImages, handleScrappImage, handleScrappAllImages }
 }
 
 export const handleListNewsPaper: RequestHandler = (req, res) => {
