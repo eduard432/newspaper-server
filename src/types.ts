@@ -23,4 +23,5 @@ export type NewsPapersMap = { [NEWSPAPER in NewsPapersList]: NewsPaperData }
 export type NewsPaperData = {
 	urlCode: string
 	maxWidth?: number
+	zone: 'national' | 'international'
 }

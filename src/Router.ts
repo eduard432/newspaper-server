@@ -70,12 +70,35 @@ export const handlerWithS3Client = (client: S3Client) => {
 					.status(400)
 			}
 
-			const keys = await listImages(client, date)
+			const filenames = await listImages(client, date)
+
+			const newsPapersKeys = Object.keys(newsPapers) as NewsPapersList[]
+			const nationalNewsPapers = newsPapersKeys.filter((newsPaper) => newsPapers[newsPaper].zone === 'national')
+			const internationalNewsPapers = newsPapersKeys.filter(
+				(newsPaper) => newsPapers[newsPaper].zone === 'international'
+			)
+
+			const nationalFilenames = filenames.filter((fileName) => {
+				for (let i = 0; i < nationalNewsPapers.length; i++) {
+					const newsPaper = nationalNewsPapers[i]
+					if (fileName.includes(newsPaper)) return true
+				}
+			})
+			const internationalFilenames = filenames.filter((fileName) => {
+				for (let i = 0; i < internationalNewsPapers.length; i++) {
+					const newsPaper = internationalNewsPapers[i]
+					if (fileName.includes(newsPaper)) return true
+				}
+			})
+
 			return res.json({
 				ok: true,
 				data: {
 					queryDate: date,
-					images: keys,
+					images: {
+						national: nationalFilenames,
+						international: internationalFilenames,
+					},
 				},
 			})
 		} catch (error) {
