@@ -153,7 +153,7 @@ export const scrappImage = async (
 			imageBuffer = await getImage(newsPaper, altDate)
 		}
 		if (imageBuffer) await loadImage(client, fileName, imageBuffer)
-		return fileName
+		return null
 	} catch (error) {
 		if (error instanceof Error) console.log(error.message)
 		return null
