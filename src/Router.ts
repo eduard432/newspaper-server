@@ -180,7 +180,10 @@ export const handlerWithS3Client = (client: S3Client) => {
 
 		const fileNames = await Promise.allSettled(scrappPromises)
 		const urls = fileNames.map(
-			(result) => `${req.get('host')}/api/images/${result.status === 'fulfilled' && result.value}`
+			(result) =>
+				result.status === 'fulfilled' &&
+				result.value &&
+				`${req.get('host')}/api/images/${result.status === 'fulfilled' && result.value}`
 		)
 
 		return res.json({
