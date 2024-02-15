@@ -154,6 +154,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 	}
 
 	const handleScrappAllImages: RequestHandler<{}, {}, {}, { date: string | 'now' }> = async (req, res) => {
+		console.time('handleScrappAllImages')
 		let { date: dateString } = req.query
 		if (!dateString) {
 			return res
@@ -164,7 +165,7 @@ export const handlerWithS3Client = (client: S3Client) => {
 				.status(400)
 		}
 
-		if(dateString === 'now') dateString = getDate(getLastValidDate(), true)
+		if (dateString === 'now') dateString = getDate(getLastValidDate(), true)
 
 		if (!isValidDate(new Date(dateString.replace('-', '/')))) {
 			return res
@@ -184,11 +185,13 @@ export const handlerWithS3Client = (client: S3Client) => {
 		const urls = fileNames
 			.map(
 				(result) =>
-					result.status === 'fulfilled' &&
-					result.value &&
-					`${req.get('host')}/api/images/${result.status === 'fulfilled' && result.value}`
+					(result.status === 'fulfilled' &&
+					result.value) ?
+					`${req.get('host')}/api/images/${result.status === 'fulfilled' && result.value}` : null
 			)
 			.filter((v) => v !== null)
+
+		console.timeEnd('handleScrappAllImages')
 
 		return res.json({
 			ok: true,
