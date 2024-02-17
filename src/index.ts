@@ -2,6 +2,7 @@ import { handleClearCache, handleHealthCheck, handleListNewsPaper, handlerWithS3
 import App from './App'
 import dotenv from 'dotenv'
 import express from 'express'
+import { handleScrapeCover } from './scrapeHandler'
 
 const main = async () => {
 	dotenv.config()
@@ -16,6 +17,7 @@ const main = async () => {
 
 	const { handleGetImage, handleListImages, handleScrappImage, handleScrappAllImages } = handlerWithS3Client(s3Client)
 
+	router.get('/scrape', handleScrapeCover)
 	router.get('/newspapers', handleListNewsPaper)
 	router.get('/cover', handleScrappImage)
 	router.get('/all-covers', handleScrappAllImages)
