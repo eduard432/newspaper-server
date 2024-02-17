@@ -67,7 +67,6 @@ const scrappElPais = (date: DateTime) =>
 		)}.pdf`
 	)
 
-
 export const handleScrapeCover: RequestHandler<{}, {}, {}, { newsPaper: NewsPapersList; date: string }> = async (
 	req,
 	res
@@ -109,7 +108,7 @@ export const handleScrapeCover: RequestHandler<{}, {}, {}, { newsPaper: NewsPape
 		const exists = await existsCover(newsPaper, date)
 
 		if (exists) {
-			console.log('exists cover')
+			console.log('exists cover - ' + newsPaper)
 			return res.json({
 				ok: true,
 				data: exists,
@@ -147,6 +146,79 @@ export const handleScrapeCover: RequestHandler<{}, {}, {}, { newsPaper: NewsPape
 				data: resp,
 			})
 		}
+	} catch (error) {
+		if (error instanceof Error) {
+			console.log({ error: error.message })
+		}
+
+		return res
+			.json({
+				ok: false,
+				error: 'Error',
+			})
+			.status(500)
+	}
+}
+
+export const handleScrapeAllCovers: RequestHandler<{}, {}, {}, { date: string }> = async (req, res) => {
+	try {
+		const { date: dateString } = req.query
+
+		let date: DateTime
+
+		if (dateString === 'now') date = DateTime.local().setZone('UTC-6')
+		else date = DateTime.fromFormat(dateString, 'dd-LL-yyyy')
+
+		// Is a valid Date?
+		if (!date.isValid)
+			return res
+				.json({
+					ok: false,
+					message: 'Invalid date',
+				})
+				.status(400)
+
+		const newsPapersList = Object.keys(newsPapers) as NewsPapersList[]
+		const promises = newsPapersList.map(async (newsPaper) => {
+			const exists = await existsCover(newsPaper, date)
+
+			if (exists) {
+				console.log('exists cover - ' + newsPaper)
+				return exists
+			} else {
+				let imageBuffer: Buffer | null
+				switch (newsPaper) {
+					case 'excelsior':
+						imageBuffer = await scrapExcelsiorCover(date)
+						break
+
+					case 'el_pais':
+						imageBuffer = await scrappElPais(date)
+						break
+
+					default:
+						imageBuffer = await scrapCover(newsPaper, date)
+						break
+				}
+				const dateString = date.toFormat('yyyy-LL-dd')
+				const uploadPathName = `${dateString}/${newsPaper} - ${dateString}.webp`
+				if (!imageBuffer)
+					return null
+				const resp = await put(uploadPathName, imageBuffer, {
+					access: 'public',
+				})
+
+				return resp
+			}
+		})
+		const results = await Promise.allSettled(promises)
+		const data = results.map((result) => result.status === 'fulfilled' ? result.value : null).filter((result) => result)
+		
+		return res.json({
+			ok: true,
+			data
+		})
+
 	} catch (error) {
 		if (error instanceof Error) {
 			console.log({ error: error.message })
