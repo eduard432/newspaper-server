@@ -3,6 +3,7 @@ import App from './App'
 import dotenv from 'dotenv'
 import express from 'express'
 import { handleScrapeAllCovers, handleScrapeCover } from './scrapeHandler'
+import monitor from 'express-status-monitor'
 
 const main = async () => {
 	dotenv.config()
@@ -10,20 +11,15 @@ const main = async () => {
 
 	const port = parseInt(process.env.PORT || '3000')
 	const expressApp = await appServer.listen(port, () => console.log('Server running on port: ' + port))
+	expressApp.use(monitor())
 	await appServer.startCache()
-	const s3Client = appServer.getS3Client()
 
 	const router = express.Router()
 
-	const { handleGetImage, handleListImages, handleScrappImage, handleScrappAllImages } = handlerWithS3Client(s3Client)
 
 	router.get('/scrape', handleScrapeCover)
 	router.get('/scrape-all', handleScrapeAllCovers)
 	router.get('/newspapers', handleListNewsPaper)
-	router.get('/cover', handleScrappImage)
-	router.get('/all-covers', handleScrappAllImages)
-	router.get('/covers/:date', handleListImages)
-	router.get('/images/:fileName', handleGetImage)
 	router.post('/cache', handleClearCache)
 	expressApp.use('/health', handleHealthCheck)
 
